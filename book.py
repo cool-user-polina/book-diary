@@ -1,4 +1,3 @@
-import json 
 import sqlite3
 
 conn = sqlite3.connect("Base_Books.db")
@@ -11,10 +10,9 @@ def add_book():
     ganre = input("ganre: ")
     year = input("year: ")
 
-    cursor.execute("SELECT author_id FROM authors_table WHERE name = ? ", (author_name,))
+    cursor.execute("SELECT author_id FROM authors_table WHERE name LIKE ? ", (f"%{author_name}%",))
     author_row = cursor.fetchone()
     author_id = author_row[0]
-
 
     cursor.execute("""
                    INSERT INTO books_table (name, author_id, ganre, years) VALUES (?, ?, ?,?)
@@ -29,10 +27,11 @@ def get_book():
 
     cursor.execute("""SELECT books_table.book_id, authors_table.name, books_table.name FROM authors_table
                 INNER JOIN books_table ON authors_table.author_id = books_table.author_id 
-                WHERE books_table.name = ?
+                WHERE books_table.name LIKE ? 
                    """,
-                   (book_name,))
+                   (f"%{book_name}%",))
     book = cursor.fetchone()
+    print(cursor.fetchall())
 
     return book   
 
@@ -50,19 +49,6 @@ def edit_book():
  
 
     
-
-def save_books():
-    with open('book.json', 'w', encoding='utf-8') as file:
-        json.dump(list_book, file, ensure_ascii= False, indent=4)
-
-
-
-#начинается выполнение программы 
-#читать
-with open('book.json', 'r', encoding='utf-8') as file:
-    list_book = json.load(file)
-
-
 message = input("add/get/edit:  ")
 if message == "add" :            
     add_book()
@@ -72,11 +58,4 @@ if message == "get" :
 
 if message == "edit" :
     edit_book()
-
-
-
-    
-save_books()
-
-
-    
+   
